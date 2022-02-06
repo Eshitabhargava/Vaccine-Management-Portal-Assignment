@@ -1,6 +1,9 @@
 """
 Controller for performing following operations: 
-    
+    1. Modifying Vaccination details
+    2. Fetching vaccination data for a single user
+    3. Fetching vaccination data for multiple users
+    4. Filtering data based on: Gender [Male/Female], is_fully_vaccinated, first_doze_taken, second_doze_taken
 """
 # Builtin imports
 from flask_restx import Namespace, Resource, fields
