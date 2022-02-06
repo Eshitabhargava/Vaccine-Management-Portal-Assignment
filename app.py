@@ -103,7 +103,7 @@ class Initializer:
 
     def run(self):
         # Running the application
-        self.app.run(port=8080)
+        self.app.run(host ='0.0.0.0',port=8080)
 
     def create_app(self):
         app = FlaskAPI(__name__, instance_relative_config=True, instance_path=PROTECTED_PATH)
