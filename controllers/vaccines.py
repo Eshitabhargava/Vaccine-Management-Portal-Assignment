@@ -69,7 +69,7 @@ class RetrievalController(Resource):
     @decode_auth_token
     def get(self, *args, **kwargs):
         """
-        Fetch the account details
+        Fetch list of users' vaccination data 
         """
         response = fetch_accounts(kwargs)
         return response

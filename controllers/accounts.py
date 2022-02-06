@@ -113,7 +113,7 @@ class ModificationController(Resource):
     @decode_auth_token
     def delete(self, ac_id, **kwargs):
         """
-        Fetch the account details
+        Delete user account
         """
         response = delete(account_id=ac_id, details=kwargs)
         return response
