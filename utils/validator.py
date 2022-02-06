@@ -3,7 +3,6 @@
 """
 from decorator import decorator
 from flask import request
-#from flask_restplus import abort
 from flask_restx import abort
 
 type_maps = {

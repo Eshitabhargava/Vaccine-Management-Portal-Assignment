@@ -1,7 +1,6 @@
 """
 Utils script containing exceptions and handlers for exceptions.
 """
-#from flask_restplus import abort
 from flask_restx import abort
 from flask import Response
 from constants import BASE_HEADERS
