@@ -1,7 +1,7 @@
 {
     "SECRET_KEY":"TEMP_KEY",	
     "APP_SETTINGS":"development",
-    "DB_CONNECTION_STRING":"postgresql://pratilipi@localhost:5432/vaccination",
+    "DB_CONNECTION_STRING":"postgresql://pratilipi@host.docker.internal:5432/vaccination",
     "DB_CONNECTION_POOL":5,
     "PORT": 4240,
     "SQLALCHEMY_TRACK_MODIFICATIONS": true
