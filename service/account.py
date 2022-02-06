@@ -11,6 +11,7 @@ from constants import EMAIL_REGEX, bcrypt
 from utils.exceptions import (
     InvalidEmailError,
     UserAlreadyExistsError,
+    UserUnauthorizedError,
     ParameterError,
     NotFoundError
 )
@@ -30,7 +31,7 @@ def register(details):
         log.warning("The entered email is invalid - {}".format(details.get("email")))
         raise InvalidEmailError
     if details.get("account_type") == "admin":
-        fetched_admin = User().fetch_by_col({"account_type": "admin"}, sort_by="id")
+        fetched_admin = User().fetch_user({"account_type": "admin"})
     fetched_email = User.find_by_email(email=details.get("email"))
     if fetched_admin or fetched_email:
         log.warning("User already exists - {}".format(details.get("email")))
@@ -66,8 +67,6 @@ def authenticate(details):
     if not auth_token:
         log.warning("Cannot generate Auth Token")
         raise AuthTokenGenError()
-    #import pdb;pdb.set_trace()
-    #data = {"auth_token": auth_token.decode()}
     data = {"auth_token": auth_token, "message": "authentication successful"}
     response = Response(
                 response=json.dumps(obj=data),
@@ -114,16 +113,20 @@ def modify(account_id, details):
             )
     return response
 
-'''
+
 def fetch_accounts(request_details):
     """
     Fetches user accounts based on multiple filter or filters
     """
+    if request_details.get("account_type") != "admin":
+        return UserUnauthorizedError()
     _filter = {}
-    if request_details.get("params").get("filter") == "all" or request_details.get("params", {}).get("auth", True) in ("True", "true"):
+    fetch_all = False
+    if request_details.get("params").get("filter") == "all":
+        fetch_all = True
         details = {}
     else:
-        details = json.loads(request_details.get("params").get("filter"))
+        details = {request_details.get("params").get("filter"): request_details.get("params").get("value")}
     if request_details.get("params", {}).pop("auth", False) in ("True", "true"):
         _filter["email"] = request_details.get("email")
     elif request_details.get("account_type") != "admin" and request_details.get("params"):
@@ -133,30 +136,40 @@ def fetch_accounts(request_details):
         _filter.update(details)
     else:
         raise ParameterError(message="filter or auth param required")
-    user_data = User().fetch_by_id(params=_filter)
-    if not user_data:
+    if fetch_all:
+        data = User().fetch_all({"filter": "all"})
+    else:
+        data = User().fetch_all(params=_filter)
+    if not data:
         log.warning("User not found".format(_filter))
         return NotFoundError()
-    else:
-        response = Response(
-                response=json.dumps(obj=user_data),
-                status=200,
-                mimetype="application/json"
-            )
-'''
+    resp_data = []
+    for d in data:
+        resp_data.append(d.to_response_dict())
+    response = Response(
+            response=json.dumps(obj=resp_data),
+            status=200,
+            mimetype="application/json"
+        )
+    return response
 
-def fetch_object(params):
+
+def fetch_object(kwargs):
     """
     returns object of queried param
     """
+    params = {"id":kwargs.get("id")}
     data = User().fetch_user(params).to_response_dict()
-    data.pop("vaccine_name")
-    data.pop("first_doze_taken")
-    data.pop("first_doze_date")
-    data.pop("second_doze_taken")
-    data.pop("second_doze_date")
-    data.pop("is_fully_vaccinated")
+    vaccine_data = kwargs.get("vaccine_data", False)
+    if not vaccine_data:
+        data.pop("vaccine_name")
+        data.pop("first_doze_taken")
+        data.pop("first_doze_date")
+        data.pop("second_doze_taken")
+        data.pop("second_doze_date")
+        data.pop("is_fully_vaccinated")
     return data
+
 
 def delete(account_id, details):
     """
