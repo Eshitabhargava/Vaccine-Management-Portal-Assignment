@@ -13,7 +13,8 @@ from utils.exceptions import (
     UserAlreadyExistsError,
     UserUnauthorizedError,
     ParameterError,
-    NotFoundError
+    NotFoundError,
+    AuthError
 )
 
 def _valid_password(user_object, provided_password):
@@ -30,10 +31,8 @@ def register(details):
     if not EMAIL_REGEX.fullmatch(details.get("email", "")):
         log.warning("The entered email is invalid - {}".format(details.get("email")))
         raise InvalidEmailError
-    if details.get("account_type") == "admin":
-        fetched_admin = User().fetch_user({"account_type": "admin"})
     fetched_email = User.find_by_email(email=details.get("email"))
-    if fetched_admin or fetched_email:
+    if fetched_email:
         log.warning("User already exists - {}".format(details.get("email")))
         raise UserAlreadyExistsError
     else:
