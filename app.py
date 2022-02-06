@@ -10,11 +10,11 @@ from flask import request
 import glob
 import logging 
 from constants import ADD_MODELS, PROTECTED_PATH, db
-from controllers.accounts import account_ns, vaccination_ns
+from controllers.accounts import account_ns
+from controllers.vaccines import vaccination_ns
 
-#log.basicConfig(level=log.INFO)
-#LOG = log.getLogger('werkzeug')
 LOG =logging.getLogger("root")
+
 class Initializer:
     def __init__(self):
         self.SECRET_KEY, self.PORT = None, None
@@ -103,7 +103,7 @@ class Initializer:
 
     def run(self):
         # Running the application
-        self.app.run(port=8080)
+        self.app.run(host ='0.0.0.0',port=8080)
 
     def create_app(self):
         app = FlaskAPI(__name__, instance_relative_config=True, instance_path=PROTECTED_PATH)

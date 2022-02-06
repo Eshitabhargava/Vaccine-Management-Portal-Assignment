@@ -5,7 +5,6 @@ Controller for performing following operations:
     3. CRUD operations on user accounts
 """
 # Builtin imports
-#from flask_restplus import Namespace, Resource, fields
 from flask_restx import Namespace, Resource, fields
 
 # Custom imports
@@ -96,19 +95,6 @@ class LoginController(Resource):
         response = authenticate(kwargs)
         return response
 
-'''
-@account_ns.route("/<int:ac_id>")
-class RetrievalController(Resource):
-    @account_ns.expect(account_filter, validate=False)
-    @validate_params(account_filter)
-    @decode_auth_token
-    def get(self, *args, **kwargs):
-        """
-        Fetch the account details
-        """
-        response = fetch_details(request_details=kwargs)
-        return response
-'''
 
 @account_ns.route("/<int:ac_id>")
 class ModificationController(Resource):
@@ -127,7 +113,7 @@ class ModificationController(Resource):
     @decode_auth_token
     def delete(self, ac_id, **kwargs):
         """
-        Fetch the account details
+        Delete user account
         """
         response = delete(account_id=ac_id, details=kwargs)
         return response

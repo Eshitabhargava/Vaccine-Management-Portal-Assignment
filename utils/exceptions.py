@@ -1,7 +1,6 @@
 """
 Utils script containing exceptions and handlers for exceptions.
 """
-#from flask_restplus import abort
 from flask_restx import abort
 from flask import Response
 from constants import BASE_HEADERS
@@ -75,3 +74,11 @@ def NotFoundError():
         status=204,
         headers=BASE_HEADERS,
     )
+
+class AuthError(Exception):
+    """Raise for errors when user has been logged out."""
+
+    def __init__(self, message="Auth Failed, Valid username/password required"):
+        self.message = message
+        super().__init__(self.message)
+        return abort(401, error=self.message, success=False)

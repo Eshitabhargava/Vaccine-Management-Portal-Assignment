@@ -28,9 +28,9 @@ class User(db.Model):
     account_type = db.Column(db.String())
     vaccine_name = db.Column(db.String())
     first_doze_taken = db.Column(db.String()) 
-    first_doze_date = db.Column(db.DateTime)
+    first_doze_date = db.Column(db.Date)
     second_doze_taken = db.Column(db.String())
-    second_doze_date = db.Column(db.DateTime) 
+    second_doze_date = db.Column(db.Date) 
     is_fully_vaccinated = db.Column(db.String())
 
     def __init__(self, user_data=None):
@@ -47,6 +47,7 @@ class User(db.Model):
         self.second_doze_taken = user_data.get("second_doze_taken")
         self.second_doze_date = user_data.get("second_doze_date")
         self.is_fully_vaccinated = user_data.get("is_fully_vaccinated")
+        self.account_type = user_data.get("account_type")
         if user_data.get("password"):
             self.password = Bcrypt().generate_password_hash(user_data.get("password")).decode()
 
@@ -63,10 +64,11 @@ class User(db.Model):
             "phone_number": self.phone_number,
             "vaccine_name": self.vaccine_name,
             "first_doze_taken": self.first_doze_taken,
-            "first_doze_date": self.first_doze_date,
+            "first_doze_date": self.first_doze_date.isoformat() if self.first_doze_date else None,
             "second_doze_taken": self.second_doze_taken,
-            "second_doze_date": self.second_doze_date,
-            "is_fully_vaccinated": self.is_fully_vaccinated
+            "second_doze_date": self.second_doze_date.isoformat() if self.second_doze_date else None,
+            "is_fully_vaccinated": self.is_fully_vaccinated,
+            "account_type": self.account_type
         }
         return resp_dict
 
@@ -82,6 +84,25 @@ class User(db.Model):
         except Exception as e:
             log.info(e, exc_info=True)
             return False
+
+    @staticmethod
+    def fetch_all(params):
+        """
+        Fetches user data from database based on provided params
+        """
+        try:
+            if params.get("filter") == "all":
+                user_objects = db.session.query(User).all()
+            else:
+                user_objects = db.session.query(User).filter_by(**params).all()
+            if user_objects:
+                for user_object in user_objects:
+                    user_object = user_object.to_response_dict()
+                return user_objects
+        except Exception as e:
+            log.info(e, exc_info=True)
+            return False
+
 
     @staticmethod
     def generate_auth_token(email_id):
